@@ -36,15 +36,14 @@ def done(proc):
 
 def simulate(choose):
     p = create_processes()
+    backup_p = [x for x in p]
     for proc in p:
         tprint(0, "Process %s created (requires %sms CPU time)" % (
         proc.pid, proc.needed))
     current = None
     time = 0
     switchtime = 0
-    while True:
-        if p == []:
-            return
+    while p != []:
         time += 1
         next_current = choose(p, current, time)
         if next_current != current and current is not None:
@@ -64,7 +63,20 @@ def simulate(choose):
                 proc.step()
         if current.done():
             p.remove(current)
+            current.turn = time-current.start
             tprint(time, 'Process %s completed its CPU burst (turnaround time %sms, initial wait time %sms, total wait time %sms)'%( current.pid, time-current.start, current.initial_wait, current.wait))
+
+    turn = []
+    initial_wait = []
+    tot_wait = []
+    for p in backup_p:
+        turn.append(p.turn)
+        initial_wait.append(p.initial_wait)
+        tot_wait.append(p.wait)
+
+    print('Turnaround time: min %0.3fms; avg %0.3fms; max %0.3fms' % (min(turn), sum(turn)/len(turn), max(turn)))
+    print('Initial wait time: min %0.3fms; avg %0.3fms; max %0.3fms' % (min(tot_wait), sum(tot_wait)/len(tot_wait), max(tot_wait)))
+    print('Total wait time: min %0.3fms; avg %0.3fms; max %0.3fms' % (min(tot_wait), sum(tot_wait)/len(tot_wait), max(tot_wait)))
 
 def fcfs(p, current, time):
     for proc in p:
@@ -112,11 +124,21 @@ def rrg():
         return current
     return rr
 
+def ppg():
+    rr = rrg()
+    def pp(proc, current, time):
+        for prio in range(0, 5):
+            a = [p for p in proc if p.priority == prio and p.start <= time]
+            if a:
+                return rr(a, current, time)
+        return proc[0]
+    return pp
 try:
     simulate(fcfs)
     simulate(sjf)
     simulate(sjfp)
     simulate(rrg())
+    simulate(ppg())
 
 except:
     import traceback
