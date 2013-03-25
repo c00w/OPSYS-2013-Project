@@ -1,6 +1,19 @@
 #!/usr/bin/env python3
 from collections import deque
-from random import randrange
+from random import randrange,random
+from math import log
+
+def exp_rand(n = 20):
+    lamb = .001
+    nums = []
+    i = 0
+    while(i<n):
+        x = -log(random())/lamb
+        if x>8000:
+            continue
+        nums.append(x)
+        i += 1
+    return nums
 
 class Process():
     def __init__(self, pid, start, needed, priority):
@@ -133,6 +146,7 @@ def ppg():
                 return rr(a, current, time)
         return proc[0]
     return pp
+
 try:
     simulate(fcfs)
     simulate(sjf)
