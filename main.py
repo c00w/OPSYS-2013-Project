@@ -5,7 +5,9 @@ from random import randrange,random
 from math import log
 from sys import argv
 
+NUMBER_OF_PROCESSES = 20
 RR_TIME = 200
+
 last_switch = 0
 
 class Process():
@@ -64,8 +66,9 @@ def done(proc):
     return proc.needed == proc.run
 
 def simulate(func):
+    global NUMBER_OF_PROCESSES
     global last_switch
-    notreadyp = create_processes()
+    notreadyp = create_processes(NUMBER_OF_PROCESSES)
     readyp = []
     backup_p = [x for x in notreadyp]
     time = 0
